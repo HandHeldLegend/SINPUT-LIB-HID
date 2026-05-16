@@ -1,5 +1,5 @@
 /*
- * SINPUT-LIB-HID — Shared enums, structs, and USB device descriptor layout used by the API.
+ * SINPUT-LIB-HID - Shared enums, structs, and USB device descriptor layout used by the API.
  *
  * Copyright (c) 2026 Hand Held Legend, LLC
  * Author: Mitchell Cairns
@@ -121,10 +121,14 @@ typedef enum
  * @brief Static capability and identity published to the host (feature report) and used locally.
  *
  * Bitmasks describe which controls exist; polling and motion ranges describe sensor scaling hints.
+ *
+ * The human-readable product name is not stored here: hosts (including SDL3 and Steam Input) derive the
+ * name from **USB string descriptors** on the wired path - your stack must expose the strings referenced
+ * by the device descriptor indices (@c iManufacturer, @c iProduct, @c iSerialNumber). Over **Bluetooth HID**,
+ * supply the analogous visible name via your Bluetooth stack (e.g. SDP HID record or GATT-visible device name).
  */
 typedef struct
 {
-    const char device_name[64];
     uint16_t polling_rate_us; // Polling rate in microseconds
     uint8_t mac_address[6];   // Device MAC address OR serial number
     struct
@@ -264,7 +268,7 @@ typedef struct
 /** @brief Gyroscope and accelerometer vectors with a microsecond sample timestamp. */
 typedef struct
 {
-    uint32_t timestamp_us;
+    uint64_t timestamp_us;
     struct
     {
         int16_t x;

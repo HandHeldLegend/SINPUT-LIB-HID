@@ -1,5 +1,8 @@
 /*
- * SINPUT-LIB-HID — USB HID report and configuration descriptors for enumeration.
+ * SINPUT-LIB-HID - USB HID report and configuration descriptors for enumeration.
+ *
+ * For Bluetooth HID, reuse the same HID report descriptor bytes when registering your HID service;
+ * these accessors are for the USB full-speed configuration path.
  *
  * Copyright (c) 2026 Hand Held Legend, LLC
  * Author: Mitchell Cairns

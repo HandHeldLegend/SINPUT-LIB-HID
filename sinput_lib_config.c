@@ -1,5 +1,5 @@
 /*
- * SINPUT-LIB-HID — In-memory device configuration with minimal sanitization.
+ * SINPUT-LIB-HID - In-memory device configuration with minimal sanitization.
  *
  * Copyright (c) 2026 Hand Held Legend, LLC
  * Author: Mitchell Cairns

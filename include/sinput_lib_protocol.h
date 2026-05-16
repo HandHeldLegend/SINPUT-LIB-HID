@@ -1,5 +1,5 @@
 /*
- * SINPUT-LIB-HID — Protocol helpers (reports, scaling, feature payload, parsing).
+ * SINPUT-LIB-HID - Protocol helpers (reports, scaling, feature payload, parsing).
  *
  * Copyright (c) 2026 Hand Held Legend, LLC
  * Author: Mitchell Cairns

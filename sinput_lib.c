@@ -1,5 +1,5 @@
 /*
- * SINPUT-LIB-HID — Default weak hooks and API dispatch to config + protocol layers.
+ * SINPUT-LIB-HID - Default weak hooks and API dispatch to config + protocol layers.
  *
  * Copyright (c) 2026 Hand Held Legend, LLC
  * Author: Mitchell Cairns

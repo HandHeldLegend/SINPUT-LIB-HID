@@ -1,5 +1,5 @@
 /*
- * SINPUT-LIB-HID — USB HID report/configuration blobs and device descriptor.
+ * SINPUT-LIB-HID - USB HID report/configuration blobs and device descriptor.
  *
  * Copyright (c) 2026 Hand Held Legend, LLC
  * Author: Mitchell Cairns

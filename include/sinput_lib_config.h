@@ -1,5 +1,5 @@
 /*
- * SINPUT-LIB-HID — Persistent device capability/configuration store used by protocol generation.
+ * SINPUT-LIB-HID - Persistent device capability/configuration store used by protocol generation.
  *
  * Copyright (c) 2026 Hand Held Legend, LLC
  * Author: Mitchell Cairns
@@ -21,7 +21,7 @@ extern "C" {
  *
  * Out-of-range enum values or too-fast polling may be clamped; see return status.
  *
- * @param cfg Device configuration to copy (must point to a valid #sinput_device_cfg_s).
+ * @param cfg Device configuration to copy (must point to a valid #sinput_device_cfg_s). The display name is not part of this struct - it comes from USB string descriptors.
  * @return #SINPUT_CONFIG_OK or #SINPUT_CONFIG_ISSUES_OVERRIDE if values were sanitized.
  */
 sinput_config_status_t sinput_config_set(const sinput_device_cfg_s *cfg);

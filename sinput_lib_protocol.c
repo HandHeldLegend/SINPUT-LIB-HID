@@ -1,5 +1,5 @@
 /*
- * SINPUT-LIB-HID — Wire-format input reports, output command decoding, and feature generation.
+ * SINPUT-LIB-HID - Wire-format input reports, output command decoding, and feature generation.
  *
  * Copyright (c) 2026 Hand Held Legend, LLC
  * Author: Mitchell Cairns
@@ -451,7 +451,7 @@ bool sinput_protocol_generate_inputreport(uint8_t out[64])
         input.gyro_y = motion.gyro.y;
         input.gyro_z = motion.gyro.z;
 
-        input.imu_timestamp_us = motion.timestamp_us;
+        input.imu_timestamp_us = (uint32_t) (motion.timestamp_us & 0xFFFFFFFF);
     }
 
     if(sinput_api_hook_get_touchpads(&touchpads))

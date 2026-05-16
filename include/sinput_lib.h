@@ -1,5 +1,8 @@
 /*
- * SINPUT-LIB-HID — Public application hooks and helpers for building 64-byte HID input reports.
+ * SINPUT-LIB-HID - Public application hooks and helpers for building 64-byte HID input reports.
+ *
+ * Works with wired USB and Bluetooth HID transports: call the same APIs from your stack’s IN/OUT
+ * or notification paths.
  *
  * Copyright (c) 2026 Hand Held Legend, LLC
  * Author: Mitchell Cairns
@@ -20,9 +23,9 @@ extern "C" {
 #endif
 
 /**
- * @brief Validates and stores device configuration, then enables the SINPUT pipeline.
+ * @brief Validates and stores device configuration (capabilities and parameters) for the SINPUT pipeline.
  *
- * @param cfg In/out device capability and identity; invalid fields may be overridden.
+ * @param cfg In/out device capability fields; invalid fields may be overridden.
  * @return Configuration outcome (#sinput_config_status_t).
  */
 sinput_config_status_t sinput_api_init(sinput_device_cfg_s *cfg);
@@ -110,7 +113,8 @@ bool sinput_api_generate_inputreport(uint8_t out[64]);
 /**
  * @brief Entry point for host-to-device output reports (haptics, RGB, feature requests).
  *
- * Parses vendor output report ID 3; forwarding from your USB/transport stack is required.
+ * Parses vendor output report ID 3. Forward payloads from USB (**SET_REPORT** / interrupt OUT) or from
+ * your **Bluetooth HID** host→device handler-the byte layout is identical.
  *
  * @param data Raw bytes as received from the host (includes report ID in @a data[0] when applicable).
  * @param len  Length of @a data in bytes.
