@@ -11,6 +11,8 @@
 #include "sinput_lib_protocol.h"
 #include "sinput_lib_config.h"
 
+#include <string.h>
+
 /* Report, feature, and bitmask constants used by HID report ID 1/2/3 framing. */
 
 #define REPORT_ID_SINPUT_INPUT  0x01 // Input Report ID, used for SINPUT input data
@@ -294,7 +296,7 @@ void _sinput_protocol_generate_features(uint8_t out[64])
     out[7] = (face_style << 5) | sub_type;
 
     // Polling rate microseconds
-    memcpy(&out[8], cfg.polling_rate_us, 2);
+    memcpy(&out[8], &cfg.polling_rate_us, 2);
 
     // Accelerometer
     if(cfg.motion.accelerometer)
@@ -365,6 +367,9 @@ void _sinput_protocol_generate_features(uint8_t out[64])
 
     // Gamepad format
     ff2.handheld_joypad_flag = cfg.gamepad_format;
+
+    out[4] = ff1.value; // Feature Flags 1    
+    out[5] = ff2.value; // Feature Flags 2
     
     out[14] = SINPUT_MASK_0(cfg.buttons.sewn, cfg.buttons.dpad);
     out[15] = SINPUT_MASK_1(cfg.joysticks.left, cfg.joysticks.right, cfg.buttons.bumpers, cfg.buttons.triggers, cfg.buttons.grips_upper);
