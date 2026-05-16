@@ -31,7 +31,7 @@ typedef enum
 
 #define SINPUT_INPUT_SIZE sizeof(sinput_input_s)
 
-/** @brief Dual-motor / dual-frequency stereo haptic request (left and right channels). */
+/** @brief Dual-motor / dual-frequency stereo haptic request (left and right channels). Host may send this or @ref sinput_stereo_rumble_s style; firmware should handle both. */
 typedef struct
 {
     struct
@@ -50,7 +50,7 @@ typedef struct
     } right;
 } sinput_stereo_haptics_s;
 
-/** @brief Classic ERM rumble request (amplitude + brake bit per side). */
+/** @brief Classic ERM rumble request (amplitude + brake bit per side). Host may send this or @ref sinput_stereo_haptics_s style; firmware should handle both. */
 typedef struct
 {
     struct

@@ -1,6 +1,7 @@
 /*
  * SINPUT-LIB-HID - Public application hooks and helpers for building 64-byte HID input reports.
  *
+ * Platform-agnostic portable C: no dependency on a specific MCU, USB stack, or Bluetooth stack.
  * Works with wired USB and Bluetooth HID transports: call the same APIs from your stack’s IN/OUT
  * or notification paths.
  *
@@ -33,12 +34,16 @@ sinput_config_status_t sinput_api_init(sinput_device_cfg_s *cfg);
 /**
  * @brief Host-requested left/right ERM-style rumble (implement in firmware).
  * @note Weak default is no-op; override in your port.
+ * @note Hosts may also use @ref sinput_api_hook_set_haptics. Conforming gamepads handle **both** encodings;
+ *       map to your actuators if the hardware only supports one physical mode.
  */
 void sinput_api_hook_set_rumble(sinput_stereo_rumble_s rumble);
 
 /**
  * @brief Host-requested HD-style dual-actuator haptics (implement in firmware).
  * @note Weak default is no-op; override in your port.
+ * @note Hosts may also use @ref sinput_api_hook_set_rumble. Conforming gamepads handle **both** encodings;
+ *       approximate on ERM hardware as needed.
  */
 void sinput_api_hook_set_haptics(sinput_stereo_haptics_s haptics);
 

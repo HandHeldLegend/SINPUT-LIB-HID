@@ -1,6 +1,6 @@
 # SINPUT-LIB-HID - Implementation guide
 
-This document is for firmware authors integrating **SINPUT-LIB-HID** over **USB** (typically TinyUSB on RP2040) and/or **Bluetooth HID** (Classic or LE HID-over-GATT)-any path that carries the same **64-byte HID framing** for input and output. It describes the **contract** between the library and your code; it does not replace reading the headers for exact type definitions.
+This document is for firmware authors integrating **SINPUT-LIB-HID** over **USB** and/or **Bluetooth HID** (Classic or LE HID-over-GATT) on **any platform** - any path that carries the same **64-byte HID framing** for input and output. The library is **transport- and MCU-agnostic**; your stack (e.g. TinyUSB, vendor USBD, BTstack, NimBLE) owns enumeration and pipes. This guide describes the **contract** between the library and your code; it does not replace reading the headers for exact type definitions.
 
 ---
 
@@ -37,7 +37,7 @@ The library **does not** open USB endpoints, Bluetooth links, or start timers. I
 
 ## 2. CMake and includes
 
-- Link **`sinput_lib_hid`** (see [`README.md`](README.md)).
+- Link **`sinput_lib_hid`** (see [`README.md`](README.md)). The CMake target carries **no** vendor SDK link dependency - only `include/` usage and C11.
 - Include **`sinput_lib.h`** for normal application use.
 - Include **`sinput_lib_hid.h`** where you register **USB** descriptors.
 
@@ -161,9 +161,11 @@ Pass through the bytes your stack delivers **unchanged**-often the first byte is
 | `0x03` | Player LED | Calls **`sinput_api_hook_set_player_leds`** with `data[2]`. |
 | `0x04` | Joystick RGB | Reads a little-endian **32-bit RGB** from `data[2…5]`, calls **`sinput_api_hook_set_joystick_rgb`**. |
 
+**Haptics and ERM rumble:** Command `0x01` carries a **type** field that routes to **`sinput_api_hook_set_haptics`** or **`sinput_api_hook_set_rumble`**. Hosts are free to use either encoding depending on title or driver. **SINPUT gamepads are expected to handle both paths properly in firmware** - if you only have ERM motors, still implement the haptics hook (for example by mapping frequencies and amplitudes into motor drive), and vice versa for HD actuators receiving ERM-style packets. Weak defaults are no-ops; production firmware should override **both** hooks when ship criteria require correct behavior across games.
+
 Setter hooks are **weak**; define them like the getters.
 
-### 6.4 USB (TinyUSB-oriented)
+### 6.4 USB device stack (example: TinyUSB)
 
 - For **Interrupt OUT** or **SET_REPORT** on the gamepad interface, copy the payload into a buffer and call `sinput_api_output_tunnel()`.
 - Keep the path **fast**: do not block inside the callback; defer heavy work to your main loop if needed.
@@ -208,7 +210,8 @@ Assume **no concurrent** calls into the same APIs from ISR and main unless you a
 | Host sees no gamepad | **USB:** descriptors/endpoints; `sinput_hid_get_descriptor_params` correct. **Bluetooth:** HID service up; same report descriptor registered; IN notifications or interrupt channel sending 64-byte reports. |
 | Buttons always zero | `sinput_api_hook_get_buttons` defined and returns `true`; bit packing matches `sinput_buttons_s`. |
 | Triggers stuck | Hook returns `true`; raw values in 0…4095; check scaling in protocol if customizing. |
-| No rumble / LEDs | Output path calls `sinput_api_output_tunnel`; first byte `0x03`; setter hooks implemented (**USB OUT** or **Bluetooth HID** host→device path wired). |
+| No rumble / LEDs | Output path calls `sinput_api_output_tunnel`; first byte `0x03`; setter hooks implemented (**USB OUT** or **Bluetooth HID** host-to-device path wired). |
+| Odd feel only in some games | Host may send **haptics** or **ERM** payloads; implement **both** `sinput_api_hook_set_haptics` and `sinput_api_hook_set_rumble` (see §6.3). |
 | Feature/Capabilities wrong | `sinput_api_init` succeeded; `sinput_device_cfg_s` reflects hardware; wait one input cycle after feature command. |
 
 ---
