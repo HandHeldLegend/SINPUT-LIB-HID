@@ -1,3 +1,11 @@
+/*
+ * SINPUT-LIB-HID — In-memory device configuration with minimal sanitization.
+ *
+ * Copyright (c) 2026 Hand Held Legend, LLC
+ * Author: Mitchell Cairns
+ *
+ * SPDX-License-Identifier: MIT-0
+ */
 
 #include <stddef.h>
 #include <string.h>

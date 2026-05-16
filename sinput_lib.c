@@ -1,6 +1,17 @@
+/*
+ * SINPUT-LIB-HID — Default weak hooks and API dispatch to config + protocol layers.
+ *
+ * Copyright (c) 2026 Hand Held Legend, LLC
+ * Author: Mitchell Cairns
+ *
+ * SPDX-License-Identifier: MIT-0
+ */
+
 #include "sinput_lib.h"
 #include "sinput_lib_config.h"
 #include "sinput_lib_protocol.h"
+
+/* ---- Weak overridable port hooks (no-op / false until implemented in firmware) ---- */
 
 __attribute__((weak)) void sinput_api_hook_set_rumble(sinput_stereo_rumble_s rumble)
 {
@@ -51,6 +62,8 @@ __attribute__((weak)) bool sinput_api_hook_get_touchpads(sinput_touchpads_s *out
 {
     return false;
 }
+
+/* ---- Public API ---- */
 
 bool sinput_api_generate_inputreport(uint8_t out[64])
 {

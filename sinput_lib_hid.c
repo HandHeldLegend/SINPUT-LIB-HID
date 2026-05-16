@@ -180,11 +180,13 @@ static const uint8_t k_sinput_config_descriptor[41] = {
     0x04         // bInterval: Polling interval (4ms)
 };
 
+/** @brief Exposes the built-in FS USB device descriptor for TinyUSB (or custom USBD) registration. */
 const sinput_usb_device_descriptor_t *sinput_hid_get_device_descriptor(void)
 {
     return &k_sinput_device_descriptor;
 }
 
+/** @brief Fills optional out-parameters with descriptor pointers, lengths, and default VID/PID values. */
 void sinput_hid_get_descriptor_params(const uint8_t **hid_report_descriptor, uint16_t *hid_report_descriptor_len,
                                   const uint8_t **configuration_descriptor, uint16_t *configuration_descriptor_len,
                                   uint16_t *vid, uint16_t *pid)

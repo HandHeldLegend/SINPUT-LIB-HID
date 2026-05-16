@@ -1,6 +1,17 @@
+/*
+ * SINPUT-LIB-HID — Wire-format input reports, output command decoding, and feature generation.
+ *
+ * Copyright (c) 2026 Hand Held Legend, LLC
+ * Author: Mitchell Cairns
+ *
+ * SPDX-License-Identifier: MIT-0
+ */
+
 #include "sinput_lib.h"
 #include "sinput_lib_protocol.h"
 #include "sinput_lib_config.h"
+
+/* Report, feature, and bitmask constants used by HID report ID 1/2/3 framing. */
 
 #define REPORT_ID_SINPUT_INPUT  0x01 // Input Report ID, used for SINPUT input data
 #define REPORT_ID_SINPUT_INPUT_CMDDAT  0x02 // Input report ID for command replies
@@ -53,6 +64,7 @@
 
 #define SINPUT_CLAMP(val, min, max) ((val) < (min) ? (min) : ((val) > (max) ? (max) : (val)))
 
+/** @brief Small state machine so a feature dump is returned on the next input poll after a host request. */
 typedef enum
 {
     SINPUT_FEATURE_STATE_IDLE,
@@ -63,6 +75,7 @@ typedef enum
 static volatile sinput_feature_state_t _feature_state = SINPUT_FEATURE_STATE_IDLE;
 
 #pragma pack(push, 1) // Ensure byte alignment
+/** @brief Wire image for the 63-byte payload following report ID 1 in the HID input report. */
 // Input report (Report ID: 1)
 typedef struct
 {
@@ -164,6 +177,7 @@ typedef struct
 #define SINPUT_INPUT_SIZE sizeof(sinput_input_s)
 
 #pragma pack(push, 1) // Ensure byte alignment
+/** @brief Feature bits for IMU, sticks, triggers, and rumble while composing the feature report. */
 typedef union
 {
     struct
@@ -182,6 +196,7 @@ typedef union
 #pragma pack(pop)
 
 #pragma pack(push, 1) // Ensure byte alignment
+/** @brief Feature bits for touchpads, joystick RGB LED, and joypad vs handheld layout. */
 typedef union
 {
     struct
@@ -196,6 +211,7 @@ typedef union
 #pragma pack(pop)
 
 #pragma pack(push, 1) // Ensure byte alignment
+/** @brief Parsed haptic payload following the type byte in vendor output reports. */
 typedef struct 
 {
     uint8_t type;
@@ -245,6 +261,11 @@ typedef struct
 
 #define SINPUT_HAPTIC_SIZE sizeof(sinput_haptic_s)
 
+/**
+ * @brief Builds report ID @c 0x02 describing firmware protocol version and advertised hardware bits.
+ *
+ * Invoked when the feature state machine is in the requested state from @ref sinput_protocol_output_tunnel.
+ */
 void _sinput_protocol_generate_features(uint8_t out[64])
 {
     // Clear report
@@ -355,6 +376,7 @@ void _sinput_protocol_generate_features(uint8_t out[64])
     
 }
 
+/** @brief Maps 12-bit scale trigger samples to the signed range expected in the wire report. */
 int16_t _sinput_scale_trigger(uint16_t val)
 {
     if (val > 4095) val = 4095; // Clamp just in case
@@ -455,6 +477,7 @@ bool sinput_protocol_generate_inputreport(uint8_t out[64])
     return true;
 }
 
+/** @brief Parses the type-2 haptic blob in an output report and forwards rumble/HD data to hooks. */
 static inline void _sinput_protocol_haptic_process(uint8_t *data)
 {
     sinput_haptic_s tmp;
@@ -496,6 +519,7 @@ static inline void _sinput_protocol_haptic_process(uint8_t *data)
     }
 }
 
+/** @brief Reads a little-endian RGB word from the vendor output packet and forwards to @ref sinput_api_hook_set_joystick_rgb. */
 static inline void _sinput_protocol_joystick_rgb_process(uint8_t *data)
 {
     uint32_t rgb;
