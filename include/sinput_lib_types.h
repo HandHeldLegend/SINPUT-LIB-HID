@@ -182,89 +182,98 @@ typedef struct
 } sinput_device_cfg_s;
 
 /**
- * @brief Digital buttons packed into 32 bits across four bytes (@c buttons_1 … @c buttons_4).
+ * @brief Packed gamepad input state including digital buttons, analog joysticks, and analog triggers.
  *
- * Bit meanings follow a south/east/west/north face layout plus d-pad, shoulders, system, and grip bits.
+ * Digital button bits are packed into 32 bits across four bytes (@c buttons_1 … @c buttons_4).
+ * Bit meanings follow a south/east/west/north face layout plus d-pad, shoulders, system, grip, and touchpad bits.
  */
 typedef struct
 {
-    union
-    {
-        struct
-        {
-            uint8_t south : 1; // LSB
-            uint8_t east : 1;
-            uint8_t west : 1;
-            uint8_t north : 1;
-            uint8_t dpad_up : 1;
-            uint8_t dpad_down : 1;
-            uint8_t dpad_left : 1;
-            uint8_t dpad_right : 1;
-        };
-        uint8_t buttons_1;
-    };
-
-    union
-    {
-        struct
-        {
-            uint8_t stick_left : 1; // LSB
-            uint8_t stick_right : 1;
-            uint8_t l_shoulder : 1;
-            uint8_t r_shoulder : 1;
-            uint8_t l_trigger : 1;
-            uint8_t r_trigger : 1;
-            uint8_t l_grip_1 : 1;
-            uint8_t r_grip_1 : 1;
-        };
-        uint8_t buttons_2;
-    };
-
-    union
-    {
-        struct
-        {
-            uint8_t start : 1; // LSB
-            uint8_t select : 1;
-            uint8_t guide : 1;
-            uint8_t share : 1;
-            uint8_t l_grip_2 : 1;
-            uint8_t r_grip_2 : 1;
-            uint8_t l_touchpad : 1;
-            uint8_t r_touchpad : 1;
-        };
-        uint8_t buttons_3;
-    };
-
-    union
-    {
-        struct
-        {
-            uint8_t power : 1; // LSB
-            uint8_t misc_1 : 1;
-            uint8_t misc_2 : 1;
-            uint8_t misc_3 : 1;
-
-            uint8_t reserved : 4;
-        };
-        uint8_t buttons_4;
-    };
-} sinput_buttons_s;
-
-/** @brief Normalized analog stick axes for left and right sticks. */
-typedef struct
-{
     struct
     {
-        int16_t x;
-        int16_t y;
-    } left;
+        union
+        {
+            struct
+            {
+                uint8_t south : 1; // LSB
+                uint8_t east : 1;
+                uint8_t west : 1;
+                uint8_t north : 1;
+                uint8_t up : 1;
+                uint8_t down : 1;
+                uint8_t left : 1;
+                uint8_t right : 1;
+            };
+            uint8_t buttons_1;
+        };
+
+        union
+        {
+            struct
+            {
+                uint8_t stick_left  : 1; // LSB
+                uint8_t stick_right : 1;
+                uint8_t l_bumper    : 1;
+                uint8_t r_bumper    : 1;
+                uint8_t l_trigger : 1;
+                uint8_t r_trigger : 1;
+                uint8_t l_grip_1 : 1;
+                uint8_t r_grip_1 : 1;
+            };
+            uint8_t buttons_2;
+        };
+
+        union
+        {
+            struct
+            {
+                uint8_t start : 1; // LSB
+                uint8_t select : 1;
+                uint8_t guide : 1;
+                uint8_t share : 1;
+                uint8_t l_grip_2 : 1;
+                uint8_t r_grip_2 : 1;
+                uint8_t l_touchpad : 1;
+                uint8_t r_touchpad : 1;
+            };
+            uint8_t buttons_3;
+        };
+
+        union
+        {
+            struct
+            {
+                uint8_t power : 1; // LSB
+                uint8_t misc_1 : 1;
+                uint8_t misc_2 : 1;
+                uint8_t misc_3 : 1;
+
+                uint8_t reserved : 4;
+            };
+            uint8_t buttons_4;
+        };
+    } buttons;
+
     struct
     {
-        int16_t x;
-        int16_t y;
-    } right;
-} sinput_joysticks_s;
+        struct
+        {
+            int16_t x;
+            int16_t y;
+        } left;
+        struct
+        {
+            int16_t x;
+            int16_t y;
+        } right;
+    } joysticks;
+
+    struct
+    {
+        uint16_t left;
+        uint16_t right;
+    } triggers;
+} sinput_input_s;
 
 /** @brief Gyroscope and accelerometer vectors with a microsecond sample timestamp. */
 typedef struct
@@ -301,13 +310,6 @@ typedef struct
         int16_t pressure;
     } right;
 } sinput_touchpads_s;
-
-/** @brief Raw 12-bit style trigger values before protocol scaling to INT16. */
-typedef struct
-{
-    uint16_t left;
-    uint16_t right;
-} sinput_triggers_s;
 
 /**
  * @brief USB device descriptor in wire layout (little-endian multi-byte fields as @c uint16_t).

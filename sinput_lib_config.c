@@ -13,10 +13,10 @@
 
 #include "sinput_lib_config.h"
 
-static sinput_device_cfg_s s_sinput_device_config;
+static sinput_device_cfg_s s_sinput_device_config = {0};
 static uint8_t s_sinput_config_ready;
 
-sinput_config_status_t sinput_config_set(const sinput_device_cfg_s *cfg)
+sinput_config_status_t sinput_config_set(sinput_device_cfg_s *cfg)
 {
     memcpy(&s_sinput_device_config, cfg, sizeof(s_sinput_device_config));
     bool sanitization_error = false;

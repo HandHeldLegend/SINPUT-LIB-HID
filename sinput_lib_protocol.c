@@ -173,10 +173,10 @@ typedef struct
     int16_t touchpad_2_pressure;
 
     uint8_t reserved_bulk[17];  // Reserved for command data
-} sinput_input_s;
+} sinput_reportinput_s;
 #pragma pack(pop)
 
-#define SINPUT_INPUT_SIZE sizeof(sinput_input_s)
+#define SINPUT_INPUT_SIZE sizeof(sinput_reportinput_s)
 
 #pragma pack(push, 1) // Ensure byte alignment
 /** @brief Feature bits for IMU, sticks, triggers, and rumble while composing the feature report. */
@@ -320,6 +320,12 @@ void _sinput_protocol_generate_features(uint8_t out[64])
         ff1.player_leds_supported = true;
     }
 
+    // Rumble
+    if(cfg.rumble)
+    {
+        ff1.rumble_supported = true;
+    }
+
     // Joystick RGB
     if(cfg.leds.joystick)
     {
@@ -381,6 +387,12 @@ void _sinput_protocol_generate_features(uint8_t out[64])
     
 }
 
+/** @brief Maps 12-bit scale joystick samples to the signed range expected in the wire report. */
+int16_t _sinput_scale_axis(int16_t input_axis)
+{   
+    return SINPUT_CLAMP(input_axis * 16, INT16_MIN, INT16_MAX);
+}
+
 /** @brief Maps 12-bit scale trigger samples to the signed range expected in the wire report. */
 int16_t _sinput_scale_trigger(uint16_t val)
 {
@@ -404,7 +416,7 @@ bool sinput_protocol_generate_inputreport(uint8_t out[64])
         return true;
     }
 
-    static sinput_input_s input = 
+    static sinput_reportinput_s input = 
     {
         .charge_percent = 100,
         .trigger_l = (-0x7fff - 1),
@@ -412,9 +424,7 @@ bool sinput_protocol_generate_inputreport(uint8_t out[64])
     };
 
     static sinput_power_s status;
-    static sinput_buttons_s buttons;
-    static sinput_joysticks_s joysticks;
-    static sinput_triggers_s triggers;
+    static sinput_input_s pad;
     static sinput_motion_s motion;
     static sinput_touchpads_s touchpads;
     
@@ -424,26 +434,20 @@ bool sinput_protocol_generate_inputreport(uint8_t out[64])
         input.plug_status = (uint8_t) status.connection_status;
     }
 
-    if(sinput_api_hook_get_buttons(&buttons))
+    if(sinput_api_hook_get_input(&pad))
     {
-        input.buttons_1 = buttons.buttons_1;
-        input.buttons_2 = buttons.buttons_2;
-        input.buttons_3 = buttons.buttons_3;
-        input.buttons_4 = buttons.buttons_4;
-    }
+        input.buttons_1 = pad.buttons.buttons_1;
+        input.buttons_2 = pad.buttons.buttons_2;
+        input.buttons_3 = pad.buttons.buttons_3;
+        input.buttons_4 = pad.buttons.buttons_4;
 
-    if(sinput_api_hook_get_joysticks(&joysticks))
-    {
-        input.left_x = joysticks.left.x;
-        input.left_y = joysticks.left.y;
-        input.right_x = joysticks.right.x;
-        input.right_y = joysticks.right.y;
-    }
+        input.left_x  = _sinput_scale_axis(pad.joysticks.left.x);
+        input.left_y  = _sinput_scale_axis(pad.joysticks.left.y);
+        input.right_x = _sinput_scale_axis(pad.joysticks.right.x);
+        input.right_y = _sinput_scale_axis(pad.joysticks.right.y);
 
-    if(sinput_api_hook_get_triggers(&triggers))
-    {
-        input.trigger_l = _sinput_scale_trigger(triggers.left);
-        input.trigger_r = _sinput_scale_trigger(triggers.right);
+        input.trigger_l = _sinput_scale_trigger(pad.triggers.left);
+        input.trigger_r = _sinput_scale_trigger(pad.triggers.right);
     }
 
     if(sinput_api_hook_get_motion(&motion))
@@ -483,7 +487,7 @@ bool sinput_protocol_generate_inputreport(uint8_t out[64])
 }
 
 /** @brief Parses the type-2 haptic blob in an output report and forwards rumble/HD data to hooks. */
-static inline void _sinput_protocol_haptic_process(uint8_t *data)
+static inline void _sinput_protocol_haptic_process(const uint8_t *data)
 {
     sinput_haptic_s tmp;
     memcpy(&tmp, data, sizeof(tmp));
@@ -525,7 +529,7 @@ static inline void _sinput_protocol_haptic_process(uint8_t *data)
 }
 
 /** @brief Reads a little-endian RGB word from the vendor output packet and forwards to @ref sinput_api_hook_set_joystick_rgb. */
-static inline void _sinput_protocol_joystick_rgb_process(uint8_t *data)
+static inline void _sinput_protocol_joystick_rgb_process(const uint8_t *data)
 {
     uint32_t rgb;
     memcpy(&rgb, data, 4);

@@ -68,28 +68,13 @@ void sinput_api_hook_set_joystick_rgb(uint32_t rgb_value);
 bool sinput_api_hook_get_power(sinput_power_s *status);
 
 /**
- * @brief Read digital button bitfields for the current input report.
+ * @brief Read digital button bitfields and analog joystick/trigger values for the current input report,
+ *        then populate @a out.
  * @param out Filled when the hook returns true.
  * @return True if @a out was updated.
  * @note Weak default returns false; override in your port.
  */
-bool sinput_api_hook_get_buttons(sinput_buttons_s *out);
-
-/**
- * @brief Read left/right analog stick samples (typically INT16 range per axis).
- * @param out Filled when the hook returns true.
- * @return True if @a out was updated.
- * @note Weak default returns false; override in your port.
- */
-bool sinput_api_hook_get_joysticks(sinput_joysticks_s *out);
-
-/**
- * @brief Read left/right analog trigger raw values (scaled internally for the wire format).
- * @param out Filled when the hook returns true.
- * @return True if @a out was updated.
- * @note Weak default returns false; override in your port.
- */
-bool sinput_api_hook_get_triggers(sinput_triggers_s *out);
+bool sinput_api_hook_get_input(sinput_input_s *out);
 
 /**
  * @brief Read IMU samples and timestamp for the current input report.

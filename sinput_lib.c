@@ -38,17 +38,7 @@ __attribute__((weak)) bool sinput_api_hook_get_power(sinput_power_s *status)
     return false;
 }
 
-__attribute__((weak)) bool sinput_api_hook_get_buttons(sinput_buttons_s *out)
-{
-    return false;
-}
-
-__attribute__((weak)) bool sinput_api_hook_get_joysticks(sinput_joysticks_s *out)
-{
-    return false;
-}
-
-__attribute__((weak)) bool sinput_api_hook_get_triggers(sinput_triggers_s *out)
+__attribute__((weak)) bool sinput_api_hook_get_input(sinput_input_s *out)
 {
     return false;
 }
