@@ -68,10 +68,9 @@ void sinput_api_hook_set_joystick_rgb(uint32_t rgb_value);
 bool sinput_api_hook_get_power(sinput_power_s *status);
 
 /**
- * @brief Read digital button bitfields and analog joystick/trigger values for the current input report,
- *        then populate @a out.
- * @param out Filled when the hook returns true.
- * @return True if @a out was updated.
+ * @brief Read consolidated gamepad input (buttons, joysticks, triggers) for the current input report.
+ * @param out Filled when the hook returns true (#sinput_input_s).
+ * @return True if @a out was updated. When false, the library reuses the last cached buttons/sticks/triggers block.
  * @note Weak default returns false; override in your port.
  */
 bool sinput_api_hook_get_input(sinput_input_s *out);

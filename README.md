@@ -10,7 +10,7 @@ Licensed under **MIT-0** - see [`LICENSE`](LICENSE).
 
 ## What you get
 
-- **Structured gamepad inputs** - Buttons, dual sticks, analog triggers (12-bit style values scaled internally), IMU, touchpads, and power status mapped into a fixed HID input report.
+- **Structured gamepad inputs** - One `sinput_input_s` snapshot per poll (`sinput_api_hook_get_input`) for buttons, dual sticks, and analog triggers (12-bit style values scaled internally), plus separate hooks for IMU, touchpads, and power—mapped into a fixed HID input report.
 - **Host output handling** - Haptics (HD-style dual pair or ERM-style rumble), player LEDs, joystick RGB, and a **feature-discovery handshake** the host can trigger via output reports.
 - **Dual-channel haptics contract** - Hosts may send **either** HD-style haptics (`sinput_api_hook_set_haptics`) **or** ERM-style rumble (`sinput_api_hook_set_rumble`). Conforming SINPUT firmware is expected to **handle both encodings correctly** - even if the hardware only has one class of actuator (for example map or approximate to your motors or voice coils).
 - **Descriptors** - Prebuilt **HID report descriptor**, **configuration descriptor**, and **USB device descriptor** accessors for **USB** enumeration (VID/PID defaults are in firmware sources). Over **Bluetooth HID**, you reuse the same **HID report descriptor** with your profile/SDP (or GATT) registration - the library does not open radios itself.
@@ -23,7 +23,7 @@ Licensed under **MIT-0** - see [`LICENSE`](LICENSE).
 | Path | Role |
 |------|------|
 | [`include/sinput_lib.h`](include/sinput_lib.h) | Public API: hooks, `sinput_api_init`, report generation, output tunnel. |
-| [`include/sinput_lib_types.h`](include/sinput_lib_types.h) | Enums and structs: device caps, buttons, motion, config blob. |
+| [`include/sinput_lib_types.h`](include/sinput_lib_types.h) | Enums and structs: device caps, `sinput_input_s`, motion, config blob. |
 | [`include/sinput_lib_hid.h`](include/sinput_lib_hid.h) | USB descriptor pointers and lengths. |
 | [`include/sinput_lib_protocol.h`](include/sinput_lib_protocol.h) | Lower-level protocol entry points (usually called via the `sinput_api_*` wrappers). |
 | [`include/sinput_lib_config.h`](include/sinput_lib_config.h) | Runtime configuration get/set used by the protocol layer. |

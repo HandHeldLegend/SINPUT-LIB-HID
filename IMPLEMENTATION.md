@@ -112,7 +112,7 @@ Call **`sinput_api_generate_inputreport(uint8_t out[64])`** at the rate implied 
 ### 5.2 What happens inside
 
 - If the library is servicing a **feature-discovery** request (see §7), the next call may produce a **report ID 0x02** style payload instead of normal gamepad samples.
-- Otherwise the function collects data via **getter hooks** and fills the main gamepad report (**report ID 0x01** in the HID descriptor), including power, buttons, sticks, triggers, motion, and touchpads where hooks return success.
+- Otherwise the function collects data via **getter hooks** and fills the main gamepad report (**report ID 0x01** in the HID descriptor): power, consolidated gamepad input (`sinput_input_s`), motion, and touchpads—each only when the corresponding hook returns success.
 
 ### 5.3 Getter hooks (implement on your board)
 
@@ -121,13 +121,11 @@ Implement any of these by **defining** the same symbol as the weak default in `s
 | Hook | Purpose |
 |------|---------|
 | `sinput_api_hook_get_power` | Battery % and connection / charging status. |
-| `sinput_api_hook_get_buttons` | Packed digital buttons (`sinput_buttons_s`). |
-| `sinput_api_hook_get_joysticks` | Left/right stick axes (`int16_t`). |
-| `sinput_api_hook_get_triggers` | Left/right **raw** trigger values; library maps 0…4095 into the wire range. |
+| `sinput_api_hook_get_input` | Digital buttons, stick axes, and **raw** trigger values in one `sinput_input_s` snapshot; library maps triggers from 0…4095 into the wire range. |
 | `sinput_api_hook_get_motion` | Accel, gyro, timestamp. |
 | `sinput_api_hook_get_touchpads` | Left/right pad coordinates and pressure. |
 
-Return **`true`** when you filled the struct; **`false`** if that sub-report is unchanged or unsupported. The library leaves prior internal state in place when a hook returns false (see source for static caching behavior on the main input path).
+Return **`true`** when you filled the struct; **`false`** if that hook has nothing new or the data is unsupported. The library leaves prior internal state in place when a hook returns false (see source for static caching on the main input path). For `sinput_api_hook_get_input`, buttons, sticks, and triggers are updated **together**—there is no per-axis caching split across separate hooks.
 
 ---
 
@@ -190,10 +188,10 @@ No separate “get feature” API is required from your stack if your transport 
 
 ## 8. Coordinate and scaling conventions
 
-- **Sticks:** `int16_t` per axis; the HID report descriptor uses 16-bit logical ranges consistent with full-scale joystick values.
-- **Triggers:** Provide **unsigned** raw values in **`sinput_triggers_s`** (implementation maps `[0, 4095]` into the packed report range; values above 4095 are clamped).
+- **Sticks:** `int16_t` per axis in `sinput_input_s.joysticks`; the HID report descriptor uses 16-bit logical ranges consistent with full-scale joystick values.
+- **Triggers:** Provide **unsigned** raw values in `sinput_input_s.triggers` (`.left` / `.right`; implementation maps `[0, 4095]` into the packed report range; values above 4095 are clamped).
 - **Motion:** Units expected by the host profile match the structs in `sinput_lib_types.h`; align your IMU fusion with those fields.
-- **Buttons:** Use the bitfield layout in `sinput_buttons_s` - match south/east/west/north and cluster assignments to your physical PCB.
+- **Buttons:** Use the bitfield layout in `sinput_input_s.buttons` - match south/east/west/north and cluster assignments to your physical PCB.
 
 ---
 
@@ -208,8 +206,8 @@ Assume **no concurrent** calls into the same APIs from ISR and main unless you a
 | Symptom | Things to verify |
 |--------|---------------------|
 | Host sees no gamepad | **USB:** descriptors/endpoints; `sinput_hid_get_descriptor_params` correct. **Bluetooth:** HID service up; same report descriptor registered; IN notifications or interrupt channel sending 64-byte reports. |
-| Buttons always zero | `sinput_api_hook_get_buttons` defined and returns `true`; bit packing matches `sinput_buttons_s`. |
-| Triggers stuck | Hook returns `true`; raw values in 0…4095; check scaling in protocol if customizing. |
+| Buttons always zero | `sinput_api_hook_get_input` defined and returns `true`; `.buttons` bit packing matches `sinput_input_s`. |
+| Sticks / triggers stuck | `sinput_api_hook_get_input` returns `true`; fill `.joysticks` / `.triggers`; trigger raw values in 0…4095. |
 | No rumble / LEDs | Output path calls `sinput_api_output_tunnel`; first byte `0x03`; setter hooks implemented (**USB OUT** or **Bluetooth HID** host-to-device path wired). |
 | Odd feel only in some games | Host may send **haptics** or **ERM** payloads; implement **both** `sinput_api_hook_set_haptics` and `sinput_api_hook_set_rumble` (see §6.3). |
 | Feature/Capabilities wrong | `sinput_api_init` succeeded; `sinput_device_cfg_s` reflects hardware; wait one input cycle after feature command. |
