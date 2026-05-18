@@ -176,7 +176,7 @@ typedef struct
 } sinput_reportinput_s;
 #pragma pack(pop)
 
-#define SINPUT_INPUT_SIZE sizeof(sinput_reportinput_s)
+#define SINPUT_REPROTINPUT_SIZE sizeof(sinput_reportinput_s)
 
 #pragma pack(push, 1) // Ensure byte alignment
 /** @brief Feature bits for IMU, sticks, triggers, and rumble while composing the feature report. */
@@ -481,7 +481,7 @@ bool sinput_protocol_generate_inputreport(uint8_t out[64])
     out[0] = REPORT_ID_SINPUT_INPUT;
 
     // Copy input data
-    memcpy(&out[1], &input, SINPUT_INPUT_SIZE);
+    memcpy(&out[1], &input, SINPUT_REPROTINPUT_SIZE);
 
     return true;
 }

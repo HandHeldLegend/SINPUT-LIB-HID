@@ -29,8 +29,6 @@ typedef enum
     SINPUT_CONFIG_INVALID_ARG,
 } sinput_config_status_t;
 
-#define SINPUT_INPUT_SIZE sizeof(sinput_input_s)
-
 /** @brief Dual-motor / dual-frequency stereo haptic request (left and right channels). Host may send this or @ref sinput_stereo_rumble_s style; firmware should handle both. */
 typedef struct
 {
