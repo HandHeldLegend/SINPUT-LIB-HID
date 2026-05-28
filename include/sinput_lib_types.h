@@ -126,6 +126,7 @@ typedef enum
  * by the device descriptor indices (@c iManufacturer, @c iProduct, @c iSerialNumber). Over **Bluetooth HID**,
  * supply the analogous visible name via your Bluetooth stack (e.g. SDP HID record or GATT-visible device name).
  */
+#pragma pack(push, 1)
 typedef struct
 {
     uint16_t polling_rate_us; // Polling rate in microseconds
@@ -174,10 +175,13 @@ typedef struct
         bool player;   // Player LEDs supported
         bool joystick; // Joystick RGB LED supported
     } leds;
-    sinput_gamepad_format_t gamepad_format;
-    sinput_sdl_gamepad_type_t gamepad_type;
-    sinput_sdl_face_style_t face_buttons_style;
+    uint8_t gamepad_format; // sinput_gamepad_format_t
+    uint8_t gamepad_type; // sinput_sdl_gamepad_type_t
+    uint8_t face_buttons_style; // sinput_sdl_face_style_t
 } sinput_device_cfg_s;
+#pragma pack(pop)
+
+#define SINPUT_DEVICE_CFG_LEN sizeof(sinput_device_cfg_s)
 
 /**
  * @brief Packed gamepad input state including digital buttons, analog joysticks, and analog triggers.
