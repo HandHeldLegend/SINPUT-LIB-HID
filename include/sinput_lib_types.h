@@ -17,6 +17,13 @@ extern "C"
 {
 #endif
 
+typedef enum
+{
+    SINPUT_INPUT_ID_INPUT   = 0x01u, // Input Report ID, used for SINPUT input data
+    SINPUT_INPUT_ID_CMDDAT  = 0x02u, // Input report ID for command replies
+    SINPUT_OUTPUT_ID_CMDDAT = 0x03u  // Output Haptic Report ID, used for haptics and commands
+} sinput_report_id_t;
+
 /**
  * @brief Result of configuration validation or operations that depend on a configured device.
  */
