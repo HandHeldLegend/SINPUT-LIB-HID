@@ -120,7 +120,7 @@ Implement any of these by **defining** the same symbol as the weak default in `s
 
 | Hook | Purpose |
 |------|---------|
-| `sinput_api_hook_get_power` | Battery % and connection / charging status. |
+| `sinput_api_hook_get_power` | Battery % and connection / charging status (`sinput_connstat_t` in the hook; the library maps to wire values `SINPUT_WIRE_PLUG_STATUS_*` 1–4 in the report; 0 is reserved / unknown). |
 | `sinput_api_hook_get_input` | Digital buttons, stick axes, and **raw** trigger values in one `sinput_input_s` snapshot; library maps triggers from 0…4095 into the wire range. |
 | `sinput_api_hook_get_motion` | Accel, gyro, timestamp. |
 | `sinput_api_hook_get_touchpads` | Left/right pad coordinates and pressure. |

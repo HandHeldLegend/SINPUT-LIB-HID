@@ -81,7 +81,7 @@ static volatile sinput_feature_state_t _feature_state = SINPUT_FEATURE_STATE_IDL
 // Input report (Report ID: 1)
 typedef struct
 {
-    uint8_t plug_status;    // Plug Status Format
+    uint8_t plug_status;    // SINPUT_WIRE_PLUG_STATUS_* (0 = unknown; 1–4 on wire)
     uint8_t charge_percent; // 0-100
 
     union {
@@ -431,7 +431,7 @@ bool sinput_protocol_generate_inputreport(uint8_t out[64])
     if(sinput_api_hook_get_power(&status))
     {
         input.charge_percent = SINPUT_CLAMP(status.charge_percent, 0, 100);
-        input.plug_status = (uint8_t) status.connection_status;
+        input.plug_status = sinput_connstat_to_wire(status.connection_status);
     }
 
     if(sinput_api_hook_get_input(&pad))

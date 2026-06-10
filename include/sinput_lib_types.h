@@ -78,6 +78,25 @@ typedef enum
     SINPUT_CONNSTAT_UNPLUGGED = 3,          // Device is unplugged from a power source (Running on battery power)
 } sinput_connstat_t;
 
+/**
+ * @brief plug_status wire byte in the HID input report payload (hosts use 1–4; 0 is reserved).
+ *
+ * Firmware fills @ref sinput_power_s::connection_status with @ref sinput_connstat_t; the protocol
+ * layer maps those values to these wire constants when building report ID 0x01 (see
+ * @ref sinput_connstat_to_wire). SDL3 hidapi SINPUT uses the same 1–4 encoding.
+ */
+#define SINPUT_WIRE_PLUG_STATUS_UNKNOWN     0u /**< Not reported; hosts should treat power state as unknown. */
+#define SINPUT_WIRE_PLUG_STATUS_NO_BATTERY  1u /**< External power, no battery present. */
+#define SINPUT_WIRE_PLUG_STATUS_CHARGING    2u /**< External power, battery charging. */
+#define SINPUT_WIRE_PLUG_STATUS_CHARGED     3u /**< External power, charge complete. */
+#define SINPUT_WIRE_PLUG_STATUS_ON_BATTERY  4u /**< Running on battery (unplugged). */
+
+/** @brief Maps @ref sinput_connstat_t to the plug_status byte placed on the wire. */
+static inline uint8_t sinput_connstat_to_wire(sinput_connstat_t status)
+{
+    return (uint8_t)status + SINPUT_WIRE_PLUG_STATUS_NO_BATTERY;
+}
+
 /** @brief Charge percentage and USB/battery connection state for the input report. */
 typedef struct
 {
